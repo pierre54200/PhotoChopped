@@ -177,7 +177,37 @@ void Canvas::keyPressEvent(QKeyEvent *event)
         update();
         return;
     }
-    QWidget::keyPressEvent(event);
+
+    // --- Ctrl + / Ctrl - / Ctrl 0 : zoom ---
+    if (event->modifiers() & Qt::ControlModifier) {
+        switch (event->key()) {
+        case Qt::Key_Plus:
+        case Qt::Key_Equal:      // touche "=" : le "+" sans Maj sur certains claviers
+            zoomIn();
+            return;
+        case Qt::Key_Minus:
+            zoomOut();
+            return;
+        case Qt::Key_0:
+            resetZoom();
+            return;
+        }
+    }
+
+    // --- Fleches : deplacer la vue (Maj = plus vite) ---
+    const double step = (event->modifiers() & Qt::ShiftModifier) ? 200 : 50;
+    QPointF delta;
+    switch (event->key()) {
+    case Qt::Key_Left:  delta = QPointF( step, 0); break;
+    case Qt::Key_Right: delta = QPointF(-step, 0); break;
+    case Qt::Key_Up:    delta = QPointF(0,  step); break;
+    case Qt::Key_Down:  delta = QPointF(0, -step); break;
+    default:
+        QWidget::keyPressEvent(event);
+        return;
+    }
+    m_offset += delta;
+    update();
 }
 
 void Canvas::keyReleaseEvent(QKeyEvent *event)
