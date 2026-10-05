@@ -9,7 +9,6 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 
-// tailles proposees (la premiere entree "Personnalisee" n'a pas de taille)
 struct Preset { const char *label; int w; int h; };
 static const Preset PRESETS[] = {
     { "Personnalisée",            0,    0 },
@@ -63,12 +62,11 @@ NewImageDialog::NewImageDialog(QWidget *parent)
     form->addRow("Fond :", m_background);
     form->addRow(buttons);
 
-    // choisir un modele remplit la taille ; modifier la taille repasse en "Personnalisee"
     connect(m_preset, &QComboBox::currentIndexChanged, this, &NewImageDialog::applyPreset);
     connect(m_width,  &QSpinBox::valueChanged, this, &NewImageDialog::markCustom);
     connect(m_height, &QSpinBox::valueChanged, this, &NewImageDialog::markCustom);
 
-    m_preset->setCurrentIndex(1);              // 800 x 600 par defaut
+    m_preset->setCurrentIndex(1);
 }
 
 void NewImageDialog::applyPreset(int index)
