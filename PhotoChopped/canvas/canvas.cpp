@@ -51,6 +51,18 @@ void Canvas::refresh(const QRect &imageArea)
     update(r.toAlignedRect().adjusted(-2, -2, 2, 2));
 }
 
+void Canvas::newImage(const QSize &size, const QColor &background)
+{
+    m_image = QImage(size, QImage::Format_ARGB32_Premultiplied);
+    m_image.fill(background);
+
+    // grande image : on la fait tenir dans la fenetre ; petite : 100 % centree
+    if (size.width() > width() || size.height() > height())
+        fitToWindow();
+    else
+        resetZoom();
+}
+
 // ---------- Zoom ----------
 
 void Canvas::setZoomAround(double zoom, const QPointF &widgetAnchor)
@@ -110,8 +122,6 @@ void Canvas::resizeEvent(QResizeEvent *)
     }
 }
 
-// ---------- Souris ----------
-
 QPoint Canvas::imagePixelAt(const QPointF &widgetPos) const
 {
     const QPointF p = widgetToImage(widgetPos);
@@ -120,7 +130,6 @@ QPoint Canvas::imagePixelAt(const QPointF &widgetPos) const
 
 void Canvas::mousePressEvent(QMouseEvent *event)
 {
-    // clic molette, ou espace + clic gauche : on deplace la vue
     if (event->button() == Qt::MiddleButton
         || (event->button() == Qt::LeftButton && m_spaceDown)) {
         m_panning = true;
@@ -150,7 +159,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *event)
     if (m_drawing && m_tool && (event->buttons() & Qt::LeftButton))
         m_tool->move(*this, m_cursorPos);
 
-    update();   // pour redessiner l'overlay de l'outil
+    update();
 }
 
 void Canvas::mouseReleaseEvent(QMouseEvent *event)
@@ -178,11 +187,10 @@ void Canvas::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    // --- Ctrl + / Ctrl - / Ctrl 0 : zoom ---
     if (event->modifiers() & Qt::ControlModifier) {
         switch (event->key()) {
         case Qt::Key_Plus:
-        case Qt::Key_Equal:      // touche "=" : le "+" sans Maj sur certains claviers
+        case Qt::Key_Equal:
             zoomIn();
             return;
         case Qt::Key_Minus:
@@ -194,7 +202,6 @@ void Canvas::keyPressEvent(QKeyEvent *event)
         }
     }
 
-    // --- Fleches : deplacer la vue (Maj = plus vite) ---
     const double step = (event->modifiers() & Qt::ShiftModifier) ? 200 : 50;
     QPointF delta;
     switch (event->key()) {
@@ -236,7 +243,7 @@ void Canvas::leaveEvent(QEvent *)
     update();
 }
 
-// ---------- Dessin ----------
+
 
 void Canvas::drawCheckerboard(QPainter &painter, const QRect &rect)
 {
@@ -253,24 +260,32 @@ void Canvas::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    // fond gris fonce autour de l'image
     painter.fillRect(event->rect(), QColor(0x3a, 0x3a, 0x3a));
 
-    // emplacement de l'image a l'ecran
     const QRectF imageOnScreen(m_offset, QSizeF(m_image.size()) * m_zoom);
     const QRect visible = imageOnScreen.toAlignedRect().intersected(event->rect());
 
-    // damier (taille fixe a l'ecran) sous les zones transparentes
     if (!visible.isEmpty())
         drawCheckerboard(painter, visible);
 
-    // l'image et l'overlay sont dessines en coordonnees de l'image
+
     painter.translate(m_offset);
     painter.scale(m_zoom, m_zoom);
-    // zoom > 100 % : pixels nets ; zoom < 100 % : reduction lissee
+
     painter.setRenderHint(QPainter::SmoothPixmapTransform, m_zoom < 1.0);
     painter.drawImage(0, 0, m_image);
 
     if (m_tool && m_cursorInside && !m_panning && !m_spaceDown)
         m_tool->drawOverlay(painter, *this, m_cursorPos);
+}
+
+// Open the image
+void Canvas::setImage(const QImage &image)
+{
+    m_image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+    if (m_image.width() > width() || m_image.height() > height())
+        fitToWindow();
+    else
+        resetZoom();
 }

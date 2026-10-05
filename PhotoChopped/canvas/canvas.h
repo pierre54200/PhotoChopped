@@ -28,6 +28,10 @@ public:
     QImage &image() { return m_image; }
     const QImage &image() const { return m_image; }
 
+    // remplace l'image actuelle par une nouvelle image vide
+    void newImage(const QSize &size, const QColor &background = Qt::white);
+    void setImage(const QImage &image);
+
     // a appeler par un outil apres avoir modifie l'image (zone en pixels de l'image)
     void refresh(const QRect &imageArea);
 

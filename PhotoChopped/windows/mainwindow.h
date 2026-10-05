@@ -5,6 +5,14 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QColorDialog>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QDir>
+#include <QStandardPaths>
+#include <QMessageBox>
+#include <QStatusBar>
+#include <QPainter>
+#include <QImageReader>
 
 #include "canvas.h"
 #include "tools/eraser.h"
@@ -32,6 +40,16 @@ private slots:
 
     void on_actionPipette_triggered();
 
+    void on_actionNew_triggered();
+
+    void on_actionSave_triggered();
+
+    void on_actionSave_as_triggered();
+
+    void on_actionOpen_triggered();
+
+    void on_actionQuit_triggered();
+
 private:
     Ui::MainWindow *ui;
     Canvas *m_canvas;
@@ -42,5 +60,11 @@ private:
     QPushButton *m_colorButton;
     void chooseColor();
     void updateColorButton();
+
+    QString m_projectName = "Sans titre";
+    QString m_filePath;
+
+    bool saveTo(const QString &path);
+    void updateTitle();
 };
 #endif // MAINWINDOW_H

@@ -525,6 +525,7 @@
     <addaction name="actionOpen"/>
     <addaction name="actionNew"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuFichier"/>
@@ -654,8 +655,23 @@
    <property name="toolTip">
     <string>Pipette</string>
    </property>
+   <property name="shortcut">
+    <string>Shift+P</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/dark/file-save.svg</normaloff>:/icons/dark/file-save.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>
