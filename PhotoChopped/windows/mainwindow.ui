@@ -500,8 +500,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>797</width>
-         <height>587</height>
+         <width>837</width>
+         <height>548</height>
         </rect>
        </property>
       </widget>
@@ -535,7 +535,7 @@
     <string>toolBar</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
+    <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -545,7 +545,7 @@
   </widget>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/dark/file-open.svg</normaloff>:/icons/dark/file-open.svg</iconset>
    </property>
    <property name="text">
@@ -563,7 +563,7 @@
   </action>
   <action name="actionNew">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/dark/file-new.svg</normaloff>:/icons/dark/file-new.svg</iconset>
    </property>
    <property name="text">
@@ -581,7 +581,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/dark/file-save.svg</normaloff>:/icons/dark/file-save.svg</iconset>
    </property>
    <property name="text">
@@ -599,7 +599,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/dark/tool-brush.svg</normaloff>:/icons/dark/tool-brush.svg</iconset>
    </property>
    <property name="text">
@@ -617,7 +617,7 @@
   </action>
   <action name="actionEraser">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/dark/tool-eraser.svg</normaloff>:/icons/dark/tool-eraser.svg</iconset>
    </property>
    <property name="text">
@@ -651,7 +651,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="../icons.qrc"/>
  </resources>
  <connections/>
 </ui>

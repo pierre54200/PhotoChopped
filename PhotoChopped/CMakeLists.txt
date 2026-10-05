@@ -14,15 +14,18 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Svg)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Svg)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        canvas.h
-        canvas.cpp
-        test.h
-        test.cpp
-        icons.qrc
+    main.cpp
+    windows/mainwindow.cpp
+    windows/mainwindow.h
+    windows/mainwindow.ui
+    canvas/canvas.cpp
+    canvas/canvas.h
+    tools/tool.h
+    tools/brush.cpp
+    tools/brush.h
+    tools/eraser.cpp
+    tools/eraser.h
+    icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -45,6 +48,12 @@ endif()
 target_link_libraries(PhotoChopped PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Svg
+)
+
+target_include_directories(PhotoChopped PRIVATE
+    windows
+    canvas
+    tools
 )
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
