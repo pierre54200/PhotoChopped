@@ -43,7 +43,7 @@ MainWindow::~MainWindow()
 void MainWindow::chooseColor()
 {
     QColor color = QColorDialog::getColor(m_canvas->color(), this, "Choisir une couleur");
-    if (!color.isValid())        // l'utilisateur a cliqué sur Annuler
+    if (!color.isValid())
         return;
 
     m_canvas->setColor(color);
@@ -165,7 +165,7 @@ void MainWindow::on_actionOpen_triggered()
         this, "Ouvrir une image", startDir,
         "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp);;Tous les fichiers (*)");
 
-    if (path.isEmpty())                  // l'utilisateur a cliqué sur Annuler
+    if (path.isEmpty())
         return;
 
     QImageReader reader(path);
@@ -191,5 +191,17 @@ void MainWindow::on_actionOpen_triggered()
 void MainWindow::on_actionQuit_triggered()
 {
     close();
+}
+
+
+void MainWindow::on_actionPencil_triggered()
+{
+    m_canvas->setTool(&m_pencil);
+}
+
+
+void MainWindow::on_actionBucket_triggered()
+{
+    m_canvas->setTool(&m_bucket);
 }
 

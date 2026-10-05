@@ -18,11 +18,9 @@ Canvas::Canvas(QWidget *parent)
     , m_image(800, 600, QImage::Format_ARGB32_Premultiplied)
 {
     m_image.fill(Qt::white);
-    setMouseTracking(true);              // recoit les mouvements meme sans clic
-    setFocusPolicy(Qt::StrongFocus);     // pour la touche espace
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
 }
-
-// ---------- Outils / couleur / taille ----------
 
 void Canvas::setTool(Tool *tool)
 {
@@ -56,14 +54,12 @@ void Canvas::newImage(const QSize &size, const QColor &background)
     m_image = QImage(size, QImage::Format_ARGB32_Premultiplied);
     m_image.fill(background);
 
-    // grande image : on la fait tenir dans la fenetre ; petite : 100 % centree
     if (size.width() > width() || size.height() > height())
         fitToWindow();
     else
         resetZoom();
 }
 
-// ---------- Zoom ----------
 
 void Canvas::setZoomAround(double zoom, const QPointF &widgetAnchor)
 {
@@ -71,7 +67,6 @@ void Canvas::setZoomAround(double zoom, const QPointF &widgetAnchor)
     if (qFuzzyCompare(zoom, m_zoom))
         return;
 
-    // le point de l'image sous l'ancre reste sous l'ancre apres le zoom
     const QPointF imagePoint = widgetToImage(widgetAnchor);
     m_zoom = zoom;
     m_offset = widgetAnchor - imagePoint * m_zoom;
@@ -115,7 +110,7 @@ void Canvas::wheelEvent(QWheelEvent *event)
 
 void Canvas::resizeEvent(QResizeEvent *)
 {
-    // au premier affichage, on centre l'image
+
     if (!m_centered && width() > 0 && height() > 0) {
         m_centered = true;
         resetZoom();
@@ -279,7 +274,6 @@ void Canvas::paintEvent(QPaintEvent *event)
         m_tool->drawOverlay(painter, *this, m_cursorPos);
 }
 
-// Open the image
 void Canvas::setImage(const QImage &image)
 {
     m_image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);

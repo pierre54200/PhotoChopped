@@ -9,7 +9,6 @@ class QLineEdit;
 class QSpinBox;
 class QComboBox;
 
-// Fenetre "Nouvelle image" : nom du projet, taille et fond.
 class NewImageDialog : public QDialog
 {
     Q_OBJECT
@@ -19,7 +18,7 @@ public:
 
     QString projectName() const;
     QSize   imageSize() const;
-    QColor  background() const;    // blanc, noir ou transparent
+    QColor  background() const;
 
 private:
     void applyPreset(int index);

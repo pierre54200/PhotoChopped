@@ -88,6 +88,6 @@ private:
 
     // Dessin
     bool   m_drawing = false;
-    QPoint m_cursorPos;        // en pixels de l'image
+    QPoint m_cursorPos;
     bool   m_cursorInside = false;
 };

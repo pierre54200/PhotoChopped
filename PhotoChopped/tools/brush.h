@@ -14,10 +14,8 @@ public:
     void drawOverlay(QPainter &painter, const Canvas &canvas, const QPoint &cursorPos) const override;
 
 protected:
-    // trace un trait entre deux points ; la gomme reutilise cette fonction
     void drawSegment(Canvas &canvas, const QPoint &from, const QPoint &to);
 
-    // reglage du QPainter avant de dessiner : la gomme le redefinit
     virtual void setupPainter(QPainter &painter, const Canvas &canvas) const;
 
 private:

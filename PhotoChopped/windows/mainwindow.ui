@@ -542,8 +542,13 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionBrush"/>
+   <addaction name="actionPencil"/>
+   <addaction name="actionBucket"/>
+   <addaction name="separator"/>
    <addaction name="actionEraser"/>
+   <addaction name="separator"/>
    <addaction name="actionPipette"/>
+   <addaction name="separator"/>
    <addaction name="separator"/>
   </widget>
   <action name="actionOpen">
@@ -672,6 +677,39 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionBucket">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/dark/tool-bucket.svg</normaloff>:/icons/dark/tool-bucket.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Bucket</string>
+   </property>
+   <property name="toolTip">
+    <string>Bucket</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+O</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionPencil">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/dark/tool-pencil.svg</normaloff>:/icons/dark/tool-pencil.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Pencil</string>
+   </property>
+   <property name="toolTip">
+    <string>Pencil</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
  </widget>

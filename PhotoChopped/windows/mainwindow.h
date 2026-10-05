@@ -18,6 +18,8 @@
 #include "tools/eraser.h"
 #include "tools/brush.h"
 #include "tools/pipette.h"
+#include "tools/pencil.h"
+#include "tools/bucket.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -50,17 +52,27 @@ private slots:
 
     void on_actionQuit_triggered();
 
+    void on_actionPencil_triggered();
+
+    void on_actionBucket_triggered();
+
 private:
     Ui::MainWindow *ui;
     Canvas *m_canvas;
+
+    // Tools
     Brush m_brush;
     Eraser m_eraser;
     Pipette m_pipette;
+    Pencil m_pencil;
+    Bucket m_bucket;
 
+    // Color
     QPushButton *m_colorButton;
     void chooseColor();
     void updateColorButton();
 
+    // Project Options
     QString m_projectName = "Sans titre";
     QString m_filePath;
 

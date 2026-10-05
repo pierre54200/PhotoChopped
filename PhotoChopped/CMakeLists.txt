@@ -34,6 +34,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         tools/pipette.h tools/pipette.cpp
         windows/newimagedialog.h windows/newimagedialog.cpp
+        tools/pencil.h tools/pencil.cpp
+        tools/bucket.h tools/bucket.cpp
     )
 else()
     if(ANDROID)
