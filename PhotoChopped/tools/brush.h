@@ -10,6 +10,9 @@ public:
     void press(Canvas &canvas, const QPoint &pos) override;
     void move(Canvas &canvas, const QPoint &pos) override;
 
+    QCursor cursor() const override { return Qt::BlankCursor; }
+    void drawOverlay(QPainter &painter, const Canvas &canvas, const QPoint &cursorPos) const override;
+
 protected:
     // trace un trait entre deux points ; la gomme reutilise cette fonction
     void drawSegment(Canvas &canvas, const QPoint &from, const QPoint &to);
