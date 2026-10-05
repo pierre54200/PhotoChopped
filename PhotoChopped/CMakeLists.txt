@@ -32,6 +32,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(PhotoChopped
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        tools/pipette.h tools/pipette.cpp
     )
 else()
     if(ANDROID)
