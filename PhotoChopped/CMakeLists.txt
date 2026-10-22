@@ -36,6 +36,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         windows/newimagedialog.h windows/newimagedialog.cpp
         tools/pencil.h tools/pencil.cpp
         tools/bucket.h tools/bucket.cpp
+        canvas/layer.h
+        canvas/layerspanel.h canvas/layerspanel.cpp
     )
 else()
     if(ANDROID)

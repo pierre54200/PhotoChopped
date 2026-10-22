@@ -501,7 +501,7 @@
          <x>0</x>
          <y>0</y>
          <width>837</width>
-         <height>548</height>
+         <height>540</height>
         </rect>
        </property>
       </widget>
@@ -515,7 +515,7 @@
      <x>0</x>
      <y>0</y>
      <width>857</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFichier">
@@ -550,6 +550,8 @@
    <addaction name="actionPipette"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -707,6 +709,36 @@
    </property>
    <property name="toolTip">
     <string>Pencil</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/dark/edit-undo.svg</normaloff>:/icons/dark/edit-undo.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Z</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/dark/edit-redo.svg</normaloff>:/icons/dark/edit-redo.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

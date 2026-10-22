@@ -5,6 +5,9 @@
 #include <QColor>
 #include <QPoint>
 #include <QPointF>
+#include <QVector>
+
+#include "layer.h"
 
 class Tool;
 
@@ -15,6 +18,7 @@ class Canvas : public QWidget
 public:
     explicit Canvas(QWidget *parent = nullptr);
 
+    // l'outil n'appartient pas au Canvas : c'est MainWindow qui le garde en vie
     void setTool(Tool *tool);
     Tool *tool() const { return m_tool; }
 
@@ -24,18 +28,44 @@ public:
     void setColor(const QColor &color);
     QColor color() const { return m_color; }
 
-    QImage &image() { return m_image; }
-    const QImage &image() const { return m_image; }
+    // image du calque actif : c'est la que les outils dessinent
+    QImage &image() { return m_layers[m_current].image; }
+    const QImage &image() const { return m_layers[m_current].image; }
+    QSize imageSize() const { return m_layers.first().image.size(); }
 
-    // New
+    // toutes les images visibles fusionnees (pour l'enregistrement)
+    QImage flattenedImage() const;
+
+    // remplace tout le document par une nouvelle image vide (un seul calque)
     void newImage(const QSize &size, const QColor &background = Qt::white);
-
-    // Open
+    // remplace tout le document par une image chargee depuis un fichier
     void setImage(const QImage &image);
+
+    // ----- Calques -----
+    // index 0 = calque du fond ; le dernier index = calque tout en haut
+    int layerCount() const { return m_layers.size(); }
+    const Layer &layer(int index) const { return m_layers[index]; }
+    int currentLayer() const { return m_current; }
+
+    void setCurrentLayer(int index);
+    void addLayer();
+    void duplicateLayer();
+    void removeLayer();
+    void moveLayerUp();
+    void moveLayerDown();
+    void setLayerVisible(int index, bool visible);
+    void setLayerOpacity(int index, double opacity);
+    void setLayerBrightness(int index, int brightness);
+    void setLayerSaturation(int index, int saturation);
+
+    QImage renderedLayer(int index) const;
+    void renameLayer(int index, const QString &name);
+
+    bool canUndo() const { return !m_layers[m_current].undoStack.isEmpty(); }
+    bool canRedo() const { return !m_layers[m_current].redoStack.isEmpty(); }
 
     void refresh(const QRect &imageArea);
 
-    // Zoom
     double zoom() const { return m_zoom; }
 
 public slots:
@@ -44,8 +74,15 @@ public slots:
     void resetZoom();
     void fitToWindow();
 
+    void undo();
+    void redo();
+
 signals:
     void colorChanged(const QColor &color);
+    void layersChanged();
+    void currentLayerChanged(int index);
+    void layerEdited(int index);
+    void historyChanged();
     void zoomChanged(double zoom);
 
 protected:
@@ -68,26 +105,28 @@ private:
     void drawCheckerboard(QPainter &painter, const QRect &rect);
     void restoreToolCursor();
 
-    QImage m_image;
+    QImage makeEmptyLayerImage() const;
+    void   resetDocument(const QImage &background);
+    void   commitStroke();
 
-    // Tool info
+    QVector<Layer> m_layers;
+    int    m_current = 0;
+    int    m_layerCounter = 1;
     Tool  *m_tool = nullptr;
     QColor m_color = Qt::black;
     int    m_brushSize = 10;
 
-    // Zoom
     QPointF m_offset;
     double  m_zoom = 1.0;
     bool    m_centered = false;
 
-    // Movement
     bool    m_panning = false;
     bool    m_spaceDown = false;
     QPointF m_panStart;
     QPointF m_offsetAtPanStart;
 
-    // Dessin
     bool   m_drawing = false;
+    QImage m_beforeStroke;
     QPoint m_cursorPos;
     bool   m_cursorInside = false;
 };

@@ -56,6 +56,8 @@ private slots:
 
     void on_actionBucket_triggered();
 
+    void on_actionUndo_triggered();
+    void on_actionRedo_triggered();
 private:
     Ui::MainWindow *ui;
     Canvas *m_canvas;

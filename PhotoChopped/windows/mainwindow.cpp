@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "newimagedialog.h"
+#include "layerspanel.h"
+#include <QDockWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -12,6 +14,20 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(m_canvas);
     m_canvas->setTool(&m_brush);
 
+    ui->actionUndo->setShortcut(QKeySequence::Undo);    // Ctrl+Z
+    ui->actionRedo->setShortcut(QKeySequence("Ctrl+Shift+Z"));
+
+    // les boutons sont grisés quand il n'y a rien à annuler / rétablir
+    auto updateHistoryActions = [this] {
+        ui->actionUndo->setEnabled(m_canvas->canUndo());
+        ui->actionRedo->setEnabled(m_canvas->canRedo());
+    };
+    connect(m_canvas, &Canvas::historyChanged, this, updateHistoryActions);
+    updateHistoryActions();
+
+    auto *layersDock = new QDockWidget("Calques", this);
+    layersDock->setWidget(new LayersPanel(m_canvas));
+    addDockWidget(Qt::RightDockWidgetArea, layersDock);
 
     ui->toolBar->addSeparator();
 
@@ -88,7 +104,7 @@ void MainWindow::on_actionNew_triggered()
 
 bool MainWindow::saveTo(const QString &path)
 {
-    QImage image = m_canvas->image();
+    QImage image = m_canvas->flattenedImage();
 
     const QString ext = QFileInfo(path).suffix().toLower();
     if (ext == "jpg" || ext == "jpeg" || ext == "bmp") {
@@ -205,3 +221,13 @@ void MainWindow::on_actionBucket_triggered()
     m_canvas->setTool(&m_bucket);
 }
 
+
+void MainWindow::on_actionUndo_triggered()
+{
+    m_canvas->undo();
+}
+
+void MainWindow::on_actionRedo_triggered()
+{
+    m_canvas->redo();
+}
