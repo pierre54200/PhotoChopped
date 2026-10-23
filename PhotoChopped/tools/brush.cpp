@@ -32,7 +32,6 @@ void Brush::drawSegment(Canvas &canvas, const QPoint &from, const QPoint &to)
 
 void Brush::drawOverlay(QPainter &painter, const Canvas &canvas, const QPoint &cursorPos) const
 {
-    // cercle qui montre la taille de la gomme
     const qreal r = canvas.brushSize() / 2.0;
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(Qt::NoBrush);

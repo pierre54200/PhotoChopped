@@ -8,16 +8,16 @@ void Pipette::press(Canvas &canvas, const QPoint &pos)
 
 void Pipette::move(Canvas &canvas, const QPoint &pos)
 {
-    pick(canvas, pos);      // la couleur suit la souris tant que le clic est maintenu
+    pick(canvas, pos);
 }
 
 void Pipette::pick(Canvas &canvas, const QPoint &pos)
 {
-    if (!canvas.image().rect().contains(pos))   // clic en dehors de l'image
+    if (!canvas.image().rect().contains(pos))
         return;
 
     QColor color = canvas.image().pixelColor(pos);
-    if (color.alpha() == 0)                      // zone effacée : rien à prendre
+    if (color.alpha() == 0)
         return;
 
     color.setAlpha(255);

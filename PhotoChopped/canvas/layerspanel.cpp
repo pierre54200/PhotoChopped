@@ -13,7 +13,6 @@
 
 static const QSize THUMB_SIZE(40, 40);
 
-// miniature du calque, posee sur un petit damier pour voir la transparence
 static QIcon makeThumbnail(const QImage &image)
 {
     QPixmap pix(THUMB_SIZE);

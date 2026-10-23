@@ -12,19 +12,16 @@
 static constexpr double MIN_ZOOM = 0.05;
 static constexpr double MAX_ZOOM = 32.0;
 static constexpr double ZOOM_STEP = 1.25;
-static constexpr int    MAX_HISTORY = 30;     // nombre d'annulations gardees par calque
+static constexpr int    MAX_HISTORY = 30;
 
-// Applique luminosite et saturation a une copie de l'image.
-// L'image est en "premultiplied" : chaque canal est deja multiplie par l'alpha,
-// donc les calculs restent entre 0 et alpha.
 static QImage applyAdjustments(const QImage &source, int brightness, int saturation)
 {
     if (brightness == 0 && saturation == 0)
-        return source;                                   // rien a faire : aucune copie
+        return source;
 
     QImage result = source.copy();
-    const int offset = brightness * 255 / 100;           // -255 .. +255
-    const int satFactor = 256 + saturation * 256 / 100;  // 0 (gris) .. 512 (x2), en 1/256
+    const int offset = brightness * 255 / 100;
+    const int satFactor = 256 + saturation * 256 / 100;
 
     for (int y = 0; y < result.height(); ++y) {
         QRgb *line = reinterpret_cast<QRgb *>(result.scanLine(y));
@@ -35,12 +32,10 @@ static QImage applyAdjustments(const QImage &source, int brightness, int saturat
                 continue;
             int r = qRed(p), g = qGreen(p), b = qBlue(p);
 
-            // luminosite : on ajoute (ou retire) la meme quantite aux 3 canaux
             if (offset != 0) {
                 const int o = offset * a / 255;
                 r += o; g += o; b += o;
             }
-            // saturation : on rapproche (ou eloigne) chaque canal du gris
             if (satFactor != 256) {
                 const int gray = (r * 77 + g * 150 + b * 29) >> 8;
                 r = gray + (((r - gray) * satFactor) >> 8);
@@ -67,11 +62,9 @@ Canvas::Canvas(QWidget *parent)
     QImage background(800, 600, QImage::Format_ARGB32_Premultiplied);
     background.fill(Qt::white);
     m_layers.append(makeLayer(QStringLiteral("Arrière-plan"), background));
-    setMouseTracking(true);              // recoit les mouvements meme sans clic
-    setFocusPolicy(Qt::StrongFocus);     // pour la touche espace
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
 }
-
-// ---------- Outils / couleur / taille ----------
 
 void Canvas::setTool(Tool *tool)
 {
@@ -100,8 +93,6 @@ void Canvas::refresh(const QRect &imageArea)
     update(r.toAlignedRect().adjusted(-2, -2, 2, 2));
 }
 
-// ---------- Document ----------
-
 void Canvas::resetDocument(const QImage &background)
 {
     m_layers.clear();
@@ -113,7 +104,6 @@ void Canvas::resetDocument(const QImage &background)
     emit currentLayerChanged(m_current);
     emit historyChanged();
 
-    // grande image : on la fait tenir dans la fenetre ; petite : 100 % centree
     const QSize size = imageSize();
     if (size.width() > width() || size.height() > height())
         fitToWindow();
@@ -133,6 +123,24 @@ void Canvas::setImage(const QImage &image)
     resetDocument(image);
 }
 
+void Canvas::setLayers(const QVector<Layer> &layers, int current, int layerCounter)
+{
+    if (layers.isEmpty())
+        return;
+    m_layers = layers;
+    m_current = std::clamp(current, 0, int(m_layers.size()) - 1);
+    m_layerCounter = std::max(layerCounter, int(m_layers.size()));
+    emit layersChanged();
+    emit currentLayerChanged(m_current);
+    emit historyChanged();
+
+    const QSize size = imageSize();
+    if (size.width() > width() || size.height() > height())
+        fitToWindow();
+    else
+        resetZoom();
+}
+
 QImage Canvas::flattenedImage() const
 {
     QImage result(imageSize(), QImage::Format_ARGB32_Premultiplied);
@@ -147,8 +155,6 @@ QImage Canvas::flattenedImage() const
     return result;
 }
 
-// ---------- Calques ----------
-
 QImage Canvas::makeEmptyLayerImage() const
 {
     QImage image(imageSize(), QImage::Format_ARGB32_Premultiplied);
@@ -162,7 +168,7 @@ void Canvas::setCurrentLayer(int index)
         return;
     m_current = index;
     emit currentLayerChanged(m_current);
-    emit historyChanged();             // l'historique affiche est celui du nouveau calque
+    emit historyChanged();
 }
 
 void Canvas::addLayer()
@@ -181,7 +187,7 @@ void Canvas::duplicateLayer()
 {
     Layer copy = m_layers[m_current];
     copy.name += " (copie)";
-    copy.undoStack.clear();            // la copie demarre avec un historique vide
+    copy.undoStack.clear();
     copy.redoStack.clear();
     m_layers.insert(m_current + 1, copy);
     m_current += 1;
@@ -193,7 +199,7 @@ void Canvas::duplicateLayer()
 
 void Canvas::removeLayer()
 {
-    if (m_layers.size() <= 1)          // on garde toujours au moins un calque
+    if (m_layers.size() <= 1)
         return;
     m_layers.removeAt(m_current);
     m_current = qMin(m_current, int(m_layers.size()) - 1);
@@ -250,7 +256,7 @@ void Canvas::setLayerBrightness(int index, int brightness)
         return;
     m_layers[index].brightness = std::clamp(brightness, -100, 100);
     update();
-    emit layerEdited(index);           // miniature du panneau
+    emit layerEdited(index);
 }
 
 void Canvas::setLayerSaturation(int index, int saturation)
@@ -268,7 +274,6 @@ QImage Canvas::renderedLayer(int index) const
     if (layer.brightness == 0 && layer.saturation == 0)
         return layer.image;
 
-    // on ne recalcule que si l'image ou les reglages ont change depuis la derniere fois
     if (layer.cache.isNull()
         || layer.cacheSourceKey  != layer.image.cacheKey()
         || layer.cacheBrightness != layer.brightness
@@ -289,15 +294,12 @@ void Canvas::renameLayer(int index, const QString &name)
     emit layersChanged();
 }
 
-// ---------- Zoom ----------
-
 void Canvas::setZoomAround(double zoom, const QPointF &widgetAnchor)
 {
     zoom = std::clamp(zoom, MIN_ZOOM, MAX_ZOOM);
     if (qFuzzyCompare(zoom, m_zoom))
         return;
 
-    // le point de l'image sous l'ancre reste sous l'ancre apres le zoom
     const QPointF imagePoint = widgetToImage(widgetAnchor);
     m_zoom = zoom;
     m_offset = widgetAnchor - imagePoint * m_zoom;
@@ -332,24 +334,20 @@ void Canvas::fitToWindow()
 
 void Canvas::wheelEvent(QWheelEvent *event)
 {
-    const double steps = event->angleDelta().y() / 120.0;   // 1 cran = 120
+    const double steps = event->angleDelta().y() / 120.0;
     if (steps == 0)
         return;
-    // zoom centre sur la souris
     setZoomAround(m_zoom * std::pow(ZOOM_STEP, steps), event->position());
     event->accept();
 }
 
 void Canvas::resizeEvent(QResizeEvent *)
 {
-    // au premier affichage, on centre l'image
     if (!m_centered && width() > 0 && height() > 0) {
         m_centered = true;
         resetZoom();
     }
 }
-
-// ---------- Souris ----------
 
 QPoint Canvas::imagePixelAt(const QPointF &widgetPos) const
 {
@@ -358,9 +356,7 @@ QPoint Canvas::imagePixelAt(const QPointF &widgetPos) const
 }
 
 void Canvas::mousePressEvent(QMouseEvent *event)
-{
-    // clic molette, ou espace + clic gauche : on deplace la vue
-    if (event->button() == Qt::MiddleButton
+{    if (event->button() == Qt::MiddleButton
         || (event->button() == Qt::LeftButton && m_spaceDown)) {
         m_panning = true;
         m_panStart = event->position();
@@ -372,7 +368,6 @@ void Canvas::mousePressEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton || !m_tool)
         return;
     m_drawing = true;
-    // photo du calque AVANT le coup d'outil (pour pouvoir l'annuler)
     m_beforeStroke = m_layers[m_current].image;
     m_tool->press(*this, imagePixelAt(event->position()));
 }
@@ -391,7 +386,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *event)
     if (m_drawing && m_tool && (event->buttons() & Qt::LeftButton))
         m_tool->move(*this, m_cursorPos);
 
-    update();   // pour redessiner l'overlay de l'outil
+    update();
 }
 
 void Canvas::mouseReleaseEvent(QMouseEvent *event)
@@ -414,8 +409,6 @@ void Canvas::commitStroke()
 {
     Layer &layer = m_layers[m_current];
 
-    // cacheKey() change des que les pixels sont modifies : si elle est identique,
-    // l'outil n'a rien change (ex : la pipette) et on n'ajoute rien a l'historique
     if (layer.image.cacheKey() == m_beforeStroke.cacheKey()) {
         m_beforeStroke = QImage();
         return;
@@ -424,10 +417,10 @@ void Canvas::commitStroke()
     layer.undoStack.append(m_beforeStroke);
     if (layer.undoStack.size() > MAX_HISTORY)
         layer.undoStack.removeFirst();
-    layer.redoStack.clear();           // un nouveau trait efface ce qui avait ete annule
+    layer.redoStack.clear();
     m_beforeStroke = QImage();
 
-    emit layerEdited(m_current);       // pour mettre a jour la miniature du panneau
+    emit layerEdited(m_current);
     emit historyChanged();
 }
 
@@ -465,11 +458,10 @@ void Canvas::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    // --- Ctrl + / Ctrl - / Ctrl 0 : zoom ---
     if (event->modifiers() & Qt::ControlModifier) {
         switch (event->key()) {
         case Qt::Key_Plus:
-        case Qt::Key_Equal:      // touche "=" : le "+" sans Maj sur certains claviers
+        case Qt::Key_Equal:
             zoomIn();
             return;
         case Qt::Key_Minus:
@@ -481,7 +473,6 @@ void Canvas::keyPressEvent(QKeyEvent *event)
         }
     }
 
-    // --- Fleches : deplacer la vue (Maj = plus vite) ---
     const double step = (event->modifiers() & Qt::ShiftModifier) ? 200 : 50;
     QPointF delta;
     switch (event->key()) {
@@ -523,8 +514,6 @@ void Canvas::leaveEvent(QEvent *)
     update();
 }
 
-// ---------- Dessin ----------
-
 void Canvas::drawCheckerboard(QPainter &painter, const QRect &rect)
 {
     const int s = 10;
@@ -540,23 +529,17 @@ void Canvas::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    // fond gris fonce autour de l'image
     painter.fillRect(event->rect(), QColor(0x3a, 0x3a, 0x3a));
 
-    // emplacement de l'image a l'ecran
     const QRectF imageOnScreen(m_offset, QSizeF(imageSize()) * m_zoom);
     const QRect visible = imageOnScreen.toAlignedRect().intersected(event->rect());
 
-    // damier (taille fixe a l'ecran) sous les zones transparentes
     if (!visible.isEmpty())
         drawCheckerboard(painter, visible);
 
-    // l'image et l'overlay sont dessines en coordonnees de l'image
     painter.translate(m_offset);
     painter.scale(m_zoom, m_zoom);
-    // zoom > 100 % : pixels nets ; zoom < 100 % : reduction lissee
     painter.setRenderHint(QPainter::SmoothPixmapTransform, m_zoom < 1.0);
-    // calques du fond vers le haut
     for (int i = 0; i < m_layers.size(); ++i) {
         if (!m_layers[i].visible)
             continue;

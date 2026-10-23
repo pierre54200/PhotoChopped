@@ -18,7 +18,6 @@ class Canvas : public QWidget
 public:
     explicit Canvas(QWidget *parent = nullptr);
 
-    // l'outil n'appartient pas au Canvas : c'est MainWindow qui le garde en vie
     void setTool(Tool *tool);
     Tool *tool() const { return m_tool; }
 
@@ -28,24 +27,20 @@ public:
     void setColor(const QColor &color);
     QColor color() const { return m_color; }
 
-    // image du calque actif : c'est la que les outils dessinent
     QImage &image() { return m_layers[m_current].image; }
     const QImage &image() const { return m_layers[m_current].image; }
     QSize imageSize() const { return m_layers.first().image.size(); }
 
-    // toutes les images visibles fusionnees (pour l'enregistrement)
     QImage flattenedImage() const;
 
-    // remplace tout le document par une nouvelle image vide (un seul calque)
     void newImage(const QSize &size, const QColor &background = Qt::white);
-    // remplace tout le document par une image chargee depuis un fichier
     void setImage(const QImage &image);
+    void setLayers(const QVector<Layer> &layers, int current, int layerCounter);
 
-    // ----- Calques -----
-    // index 0 = calque du fond ; le dernier index = calque tout en haut
     int layerCount() const { return m_layers.size(); }
     const Layer &layer(int index) const { return m_layers[index]; }
     int currentLayer() const { return m_current; }
+    int layerCounter() const { return m_layerCounter; }
 
     void setCurrentLayer(int index);
     void addLayer();

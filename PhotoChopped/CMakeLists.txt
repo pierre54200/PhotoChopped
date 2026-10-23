@@ -38,6 +38,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         tools/bucket.h tools/bucket.cpp
         canvas/layer.h
         canvas/layerspanel.h canvas/layerspanel.cpp
+        canvas/projectfile.h canvas/projectfile.cpp
     )
 else()
     if(ANDROID)
