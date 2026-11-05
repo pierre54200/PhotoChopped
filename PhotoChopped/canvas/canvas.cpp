@@ -9,11 +9,6 @@
 #include <cmath>
 #include <algorithm>
 
-static constexpr double MIN_ZOOM = 0.05;
-static constexpr double MAX_ZOOM = 32.0;
-static constexpr double ZOOM_STEP = 1.25;
-static constexpr int    MAX_HISTORY = 30;
-
 static QImage applyAdjustments(const QImage &source, int brightness, int saturation)
 {
     if (brightness == 0 && saturation == 0)

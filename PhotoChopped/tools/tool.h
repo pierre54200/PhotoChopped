@@ -1,5 +1,4 @@
-#ifndef TOOL_H
-#define TOOL_H
+#pragma once
 
 #include <QPoint>
 #include <QCursor>
@@ -12,6 +11,7 @@ class Tool
 public:
     virtual ~Tool() = default;
 
+    // Action
     virtual void press(Canvas &canvas, const QPoint &pos) = 0;
     virtual void move(Canvas &canvas, const QPoint &pos) = 0;
     virtual void release(Canvas &canvas, const QPoint &pos) { Q_UNUSED(canvas); Q_UNUSED(pos); }
@@ -23,5 +23,3 @@ public:
         Q_UNUSED(painter); Q_UNUSED(canvas); Q_UNUSED(cursorPos);
     }
 };
-
-#endif // TOOL_H

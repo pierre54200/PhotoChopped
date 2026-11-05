@@ -20,12 +20,40 @@
 #include <QSpinBox>
 #include <QStandardPaths>
 #include <QStatusBar>
+#include <QComboBox>
+#include <QCheckBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    auto *actionExport = new QAction(QIcon(":/icons/dark/file-export.svg"), "Exporter...", this);
+    for (QObject *obj : ui->actionSave_as->associatedObjects()) {
+        if (auto *menu = qobject_cast<QMenu *>(obj)) {
+            if (menu->actions().contains(ui->actionQuit))
+                menu->insertAction(ui->actionQuit, actionExport);
+            else
+                menu->addAction(actionExport);
+        }
+    }
+
+    // Fichier
+    connect(ui->actionNew,     &QAction::triggered, this, &MainWindow::newImage);
+    connect(ui->actionOpen,    &QAction::triggered, this, &MainWindow::openImage);
+    connect(ui->actionSave,    &QAction::triggered, this, &MainWindow::save);
+    connect(ui->actionSave_as, &QAction::triggered, this, &MainWindow::saveAs);
+    connect(actionExport,      &QAction::triggered, this, &MainWindow::exportImage);
+    connect(ui->actionQuit,    &QAction::triggered, this, &MainWindow::close);
+
+    ui->actionNew->setShortcut(QKeySequence::New);
+    ui->actionOpen->setShortcut(QKeySequence::Open);
+    ui->actionSave->setShortcut(QKeySequence::Save);
+    ui->actionSave_as->setShortcut(QKeySequence("Ctrl+Shift+S"));
+    actionExport->setShortcut(QKeySequence("Ctrl+E"));
+    ui->actionQuit->setShortcut(QKeySequence("Ctrl+Q"));
+
 
     m_canvas = new Canvas(this);
     setCentralWidget(m_canvas);
@@ -46,34 +74,35 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionBucket,  &QAction::triggered, this, [this] { m_canvas->setTool(&m_bucket); });
     connect(ui->actionPipette, &QAction::triggered, this, [this] { m_canvas->setTool(&m_pipette); });
 
-    auto *actionExport = new QAction(QIcon(":/icons/dark/file-export.svg"), "Exporter...", this);
-    for (QObject *obj : ui->actionSave_as->associatedObjects()) {
-        if (auto *menu = qobject_cast<QMenu *>(obj)) {
-            if (menu->actions().contains(ui->actionQuit))
-                menu->insertAction(ui->actionQuit, actionExport);
-            else
-                menu->addAction(actionExport);
-        }
-    }
+    // Forme
+    auto *actionShape = new QAction(QIcon(":/icons/dark/tool-shape.svg"), "Forme", this);
+    actionShape->setCheckable(true);
+    actionShape->setToolTip("Forme (Maj : carré / cercle, Ctrl : depuis le centre)");
+    tools->addAction(actionShape);            // le même groupe que les autres outils
+    ui->toolBar->addAction(actionShape);
+    connect(actionShape, &QAction::triggered, this, [this] { m_canvas->setTool(&m_shape); });
 
-    connect(ui->actionNew,     &QAction::triggered, this, &MainWindow::newImage);
-    connect(ui->actionOpen,    &QAction::triggered, this, &MainWindow::openImage);
-    connect(ui->actionSave,    &QAction::triggered, this, &MainWindow::save);
-    connect(ui->actionSave_as, &QAction::triggered, this, &MainWindow::saveAs);
-    connect(actionExport,      &QAction::triggered, this, &MainWindow::exportImage);
-    connect(ui->actionQuit,    &QAction::triggered, this, &MainWindow::close);
+    // options de la forme, dans la barre d'outils
+    auto *shapeType = new QComboBox;
+    shapeType->addItem("Rectangle");
+    shapeType->addItem("Ellipse");
+    shapeType->setToolTip("Type de forme");
 
-    ui->actionNew->setShortcut(QKeySequence::New);
-    ui->actionOpen->setShortcut(QKeySequence::Open);
-    ui->actionSave->setShortcut(QKeySequence::Save);
-    ui->actionSave_as->setShortcut(QKeySequence("Ctrl+Shift+S"));
-    actionExport->setShortcut(QKeySequence("Ctrl+E"));
-    ui->actionQuit->setShortcut(QKeySequence("Ctrl+Q"));
+    auto *shapeFilled = new QCheckBox("Rempli");
+    shapeFilled->setToolTip("Coché : forme pleine ; décoché : seulement le contour");
 
+    connect(shapeType, &QComboBox::currentIndexChanged, this, [this](int index) {
+        m_shape.setShape(index == 0 ? Shape::ShapeType::Rectangle : Shape::ShapeType::Cercle);
+    });
+    connect(shapeFilled, &QCheckBox::toggled, this, [this](bool on) { m_shape.setFilled(on); });
+
+    // Historique
     connect(ui->actionUndo, &QAction::triggered, m_canvas, &Canvas::undo);
     connect(ui->actionRedo, &QAction::triggered, m_canvas, &Canvas::redo);
     ui->actionUndo->setShortcut(QKeySequence::Undo);
     ui->actionRedo->setShortcut(QKeySequence("Ctrl+Shift+Z"));
+    ui->toolBar->addWidget(shapeType);
+    ui->toolBar->addWidget(shapeFilled);
 
     auto updateHistoryActions = [this] {
         ui->actionUndo->setEnabled(m_canvas->canUndo());
@@ -82,6 +111,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_canvas, &Canvas::historyChanged, this, updateHistoryActions);
     updateHistoryActions();
 
+    // Layers
     auto *layersDock = new QDockWidget("Calques", this);
     layersDock->setObjectName("layersDock");
     layersDock->setWidget(new LayersPanel(m_canvas));
@@ -91,8 +121,7 @@ MainWindow::MainWindow(QWidget *parent)
     windowsMenu->addAction(layersDock->toggleViewAction());
     layersDock->toggleViewAction()->setShortcut(QKeySequence("Ctrl+L"));
 
-    ui->toolBar->addSeparator();
-
+    // Size
     auto *sizeBox = new QSpinBox;
     sizeBox->setRange(1, 200);
     sizeBox->setValue(m_canvas->brushSize());
@@ -101,6 +130,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->toolBar->addWidget(sizeBox);
     connect(sizeBox, &QSpinBox::valueChanged, m_canvas, &Canvas::setBrushSize);
 
+    // Color
     m_colorButton = new QPushButton;
     m_colorButton->setFixedSize(28, 28);
     m_colorButton->setToolTip("Couleur");
@@ -109,6 +139,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_canvas, &Canvas::colorChanged, this, &MainWindow::updateColorButton);
     updateColorButton();
 
+    // Titre
     updateTitle();
 }
 

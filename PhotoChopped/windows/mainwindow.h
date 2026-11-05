@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QString>
@@ -10,6 +9,7 @@
 #include "pencil.h"
 #include "bucket.h"
 #include "pipette.h"
+#include "shape.h"
 
 class QPushButton;
 
@@ -26,6 +26,7 @@ public:
     ~MainWindow() override;
 
 private:
+    // Bouton
     void newImage();
     void openImage();
     void save();
@@ -33,26 +34,37 @@ private:
     void exportImage();
     bool saveProjectTo(const QString &path);
     bool exportTo(const QString &path);
+
+    // Titre
     void updateTitle();
+
+    // Pour Open et Save
     QString defaultFolder() const;
 
+    // Palette
     void chooseColor();
     void updateColorButton();
 
-    Ui::MainWindow *ui;
-    Canvas *m_canvas;
+    // Affichage
+    Ui::MainWindow  *ui;
 
-    Brush   m_brush;
-    Eraser  m_eraser;
-    Pencil  m_pencil;
-    Bucket  m_bucket;
-    Pipette m_pipette;
+    // L'endroit ou dessiner
+    Canvas          *m_canvas;
 
-    QPushButton *m_colorButton;
+    // Tool
+    Brush           m_brush;
+    Eraser          m_eraser;
+    Pencil          m_pencil;
+    Bucket          m_bucket;
+    Pipette         m_pipette;
+    Shape           m_shape;
 
-    QString m_projectName = "Sans titre";
-    QString m_filePath;
-    QString m_exportPath;
+    QPushButton     *m_colorButton;
+
+    // Name
+    QString         m_projectName = "Sans titre";
+
+    // Path
+    QString         m_filePath;
+    QString         m_exportPath;
 };
-
-#endif // MAINWINDOW_H

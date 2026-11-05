@@ -1,5 +1,4 @@
-#ifndef NEWIMAGEDIALOG_H
-#define NEWIMAGEDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QSize>
@@ -16,20 +15,30 @@ class NewImageDialog : public QDialog
 public:
     explicit NewImageDialog(QWidget *parent = nullptr);
 
+    // Name
     QString projectName() const;
-    QSize   imageSize() const;
-    QColor  background() const;
 
-private:
-    void applyPreset(int index);
-    void markCustom();
+    // Size
+    QSize imageSize() const;
 
+    // Customization
+    QColor background() const;
+
+private: 
+    // Name
     QLineEdit *m_name;
-    QComboBox *m_preset;
-    QSpinBox  *m_width;
-    QSpinBox  *m_height;
-    QComboBox *m_background;
-    bool       m_applyingPreset = false;
-};
 
-#endif // NEWIMAGEDIALOG_H
+    // Size
+    QSpinBox *m_width;
+    QSpinBox *m_height;
+
+    // Background
+    QComboBox *m_background;
+
+    // Preset
+    QComboBox *m_preset;
+    bool m_applyingPreset = false;
+    void applyPreset(int index);
+
+    void markCustom();
+};

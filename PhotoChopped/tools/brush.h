@@ -1,5 +1,4 @@
-#ifndef BRUSH_H
-#define BRUSH_H
+#pragma once
 
 #include "tool.h"
 #include <QPainter>
@@ -7,6 +6,7 @@
 class Brush : public Tool
 {
 public:
+    // Action
     void press(Canvas &canvas, const QPoint &pos) override;
     void move(Canvas &canvas, const QPoint &pos) override;
 
@@ -21,5 +21,3 @@ protected:
 private:
     QPoint m_lastPoint;
 };
-
-#endif // BRUSH_H
