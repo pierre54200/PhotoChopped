@@ -54,6 +54,9 @@ public:
     // Ouvrir un .pcp
     void setLayers(const QVector<Layer> &layers, int current, int layerCounter);
 
+    // Recadrer : garde seulement la zone 'area' de tous les calques
+    void cropTo(const QRect &area);
+
     // Layers
     int layerCount() const { return m_layers.size(); }
     const Layer &layer(int index) const { return m_layers[index]; }
@@ -61,7 +64,7 @@ public:
     int layerCounter() const { return m_layerCounter; }
     void setCurrentLayer(int index);
     void addLayer();
-    void duplicateLayer();    
+    void duplicateLayer();
     void removeLayer();
     void moveLayerUp();
     void moveLayerDown();

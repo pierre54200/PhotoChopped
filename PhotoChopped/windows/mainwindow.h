@@ -10,6 +10,8 @@
 #include "bucket.h"
 #include "pipette.h"
 #include "shape.h"
+#include "crop.h"
+#include "select.h"
 
 class QPushButton;
 
@@ -58,6 +60,8 @@ private:
     Bucket          m_bucket;
     Pipette         m_pipette;
     Shape           m_shape;
+    Crop            m_crop;
+    Select          m_select;
 
     QPushButton     *m_colorButton;
 

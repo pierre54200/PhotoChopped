@@ -136,6 +136,27 @@ void Canvas::setLayers(const QVector<Layer> &layers, int current, int layerCount
         resetZoom();
 }
 
+void Canvas::cropTo(const QRect &area)
+{
+    const QRect rect = area.intersected(QRect(QPoint(0, 0), imageSize()));
+    if (rect.isEmpty() || rect.size() == imageSize())
+        return;
+
+    for (Layer &layer : m_layers) {
+        layer.image = layer.image.copy(rect);
+        // l'historique contient des images de l'ancienne taille : on le vide
+        layer.undoStack.clear();
+        layer.redoStack.clear();
+    }
+
+    // la zone gardée reste au même endroit à l'écran
+    m_offset += QPointF(rect.topLeft()) * m_zoom;
+
+    emit layersChanged();
+    emit historyChanged();
+    update();
+}
+
 QImage Canvas::flattenedImage() const
 {
     QImage result(imageSize(), QImage::Format_ARGB32_Premultiplied);
@@ -445,6 +466,12 @@ void Canvas::redo()
 
 void Canvas::keyPressEvent(QKeyEvent *event)
 {
+    // l'outil actif voit la touche en premier (Entrée / Échap du recadrage)
+    if (m_tool && !m_drawing && m_tool->keyPress(*this, event)) {
+        update();
+        return;
+    }
+
     if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
         m_spaceDown = true;
         if (!m_panning)
@@ -543,6 +570,7 @@ void Canvas::paintEvent(QPaintEvent *event)
     }
     painter.setOpacity(1.0);
 
-    if (m_tool && m_cursorInside && !m_panning && !m_spaceDown)
+    const bool showOverlay = m_cursorInside || (m_tool && !m_tool->overlayFollowsCursor());
+    if (m_tool && showOverlay && !m_panning && !m_spaceDown)
         m_tool->drawOverlay(painter, *this, m_cursorPos);
 }

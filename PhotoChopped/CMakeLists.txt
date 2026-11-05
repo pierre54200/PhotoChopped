@@ -40,6 +40,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         canvas/layerspanel.h canvas/layerspanel.cpp
         canvas/projectfile.h canvas/projectfile.cpp
         tools/shape.h tools/shape.cpp
+        tools/crop.h tools/crop.cpp
+        tools/select.h tools/select.cpp
     )
 else()
     if(ANDROID)

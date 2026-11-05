@@ -82,6 +82,28 @@ MainWindow::MainWindow(QWidget *parent)
     ui->toolBar->addAction(actionShape);
     connect(actionShape, &QAction::triggered, this, [this] { m_canvas->setTool(&m_shape); });
 
+    // Sélection
+    auto *actionSelect = new QAction(QIcon(":/icons/dark/tool-select-rect.svg"), "Sélection", this);
+    actionSelect->setCheckable(true);
+    actionSelect->setToolTip("Sélection (tirer pour sélectionner, tirer dedans pour déplacer, Échap pour désélectionner)");
+    tools->addAction(actionSelect);
+    ui->toolBar->addAction(actionSelect);
+    connect(actionSelect, &QAction::triggered, this, [this] {
+        m_canvas->setTool(&m_select);
+        m_canvas->setFocus();          // pour que Échap arrive au canvas
+    });
+
+    // Recadrer
+    auto *actionCrop = new QAction(QIcon(":/icons/dark/tool-crop.svg"), "Recadrer", this);
+    actionCrop->setCheckable(true);
+    actionCrop->setToolTip("Recadrer (tirer un cadre, Entrée pour valider, Échap pour annuler)");
+    tools->addAction(actionCrop);
+    ui->toolBar->addAction(actionCrop);
+    connect(actionCrop, &QAction::triggered, this, [this] {
+        m_canvas->setTool(&m_crop);
+        m_canvas->setFocus();          // pour que Entrée et Échap arrivent au canvas
+    });
+
     // options de la forme, dans la barre d'outils
     auto *shapeType = new QComboBox;
     shapeType->addItem("Rectangle");
